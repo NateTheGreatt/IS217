@@ -1,0 +1,102 @@
+<html>
+
+<head>
+
+<!--
+
+	In this example I combined the decorator pattern with the singleton pattern. The
+	decorator pattern is useful for adding on functionality to an object that did not
+	initially have said functionality. The singleton pattern is used when we want to
+	insure the instantiation of just one object. I decorated a weapon singleton with 
+	an additional "element" variable that determines what sort of element that weapon 
+	possesses. This simple example demonstrates how functionality could be added to 
+	a player's weapon that acts as a singleton, because the player should only have 
+	one weapon.
+	
+	Weapon type could be a sword, axe, mace, etc.
+	Weapon element could be fire, ice, lightning, etc.
+
+-->
+
+<script>
+
+	
+// Define the weaponSingleton
+var weaponSingleton = (function() {
+
+	var instance = null;
+	var type;
+
+	function _constructor(wepType) {
+		type = wepType || "sword";
+		this.getType = function() {
+			return type;
+		}
+	}
+
+	return new function() {
+		this.getInstance = function(wepType) {
+			
+			if (instance == null) {
+				instance = new _constructor(wepType);
+				instance.constructor = null;
+			} else {
+				if(wepType == this.type) {
+					return instance;
+				} else {
+					instance = new _constructor(wepType);
+					instance.constructor = null;
+				}
+			}
+			return instance;
+		}
+	}
+	
+})();
+
+var playerWeapon = weaponSingleton.getInstance();
+
+function givePlayer(wepType, elementType) {
+	playerWeapon = weaponSingleton.getInstance(wepType);
+	var log = document.getElementById("log");
+	log.innerHTML += "Gave player a new "+playerWeapon.getType();
+	if(arguments.length == 2) {
+		// Decorate the weaponSingleton with an element type on the fly
+		playerWeapon.setElement = function(element) {
+			this.element = element;
+		};
+		playerWeapon.setElement(elementType);
+		log.innerHTML += " of "+playerWeapon.element;
+	}
+	
+	log.innerHTML += ".<br />"
+}
+
+
+</script>
+
+</head>
+
+
+<body>
+
+Weapon type (sword, axe, etc.): <input type="text" id="weaponType"><br />
+Weapon element (fire, ice, etc.): <input type="text" id="weaponElement"><br />
+<button id="giveSword" onclick="givePlayer(document.getElementById('weaponType').value,document.getElementById('weaponElement').value)">Give new weapon</button>
+
+<div id="log"></div>
+
+<!-- 
+
+Factory+Flyweight
+
+Decorator+Singleton
+
+Visitor+Builder? 
+
+-->
+
+</body>
+
+
+</html>

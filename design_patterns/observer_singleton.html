@@ -1,0 +1,81 @@
+<html>
+
+<head>
+
+<!--
+	
+	The Observer and Singleton patterns are used here. The observer pattern is an object
+	that watches different instances of other objects that are stored in an array. The 
+	singleton pattern is used when we want to insure the instantiation of just one object.
+	The observer constructed here is listening for changes in the observable singleton.
+	
+-->
+
+
+
+</head>
+
+
+<body>
+
+<div id="log"></div>
+
+<script>
+
+var ObservableSingleton = function() {
+    var subscribers = [];
+	var instance = null;
+	var id;
+
+	function _constructor() {
+		id = Math.random() * (10 - 1) + 1;
+		this.getId = function() {
+			return id;
+		}
+	}
+
+	return new function() {
+		this.getInstance = function() {
+			if (instance == null) {
+				instance = new _constructor();
+				instance.constructor = null;
+			}
+			return instance;
+		}
+		
+		this.subscribe = function(callback) {
+			subscribers.push(callback);
+		}
+		
+		this.unsubscribe = function(callback) {
+			for (var i=0; i < subscribers.length; i++) {
+				if (subscribers[i] === callback) {
+					subscribers.splice(i, 1);
+					return;
+				}
+			}
+		}
+		
+		this.publish = function(data) {
+			for (var i=0; i < subscribers.length; i++) {
+				subscribers[i](data);
+			}
+		}
+	}
+}
+ 
+var Observer = function (data) {
+    document.getElementById("log").innerHTML += data+"<br />";
+}
+ 
+// Here's where it gets used.
+observable = new ObservableSingleton();
+observable.subscribe(Observer);
+observable.publish('Published to the observable singleton');
+
+</script>
+
+</body>
+
+
+</html>

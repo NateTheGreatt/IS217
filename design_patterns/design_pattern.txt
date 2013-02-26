@@ -1,0 +1,3 @@
+A design pattern is basically a blueprint for a solution to a programming problem.
+Each design pattern is specifically developed for the purpose of solving a specific
+problem, the data flow of the pattern being relatively the same for each implementation.

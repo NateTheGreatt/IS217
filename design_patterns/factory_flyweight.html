@@ -1,0 +1,158 @@
+<html>
+
+<head>
+
+<!--
+
+	This file combines the Factory and Flyweight patterns to construct a system
+	that handles weapon creation and recycling, and binds those weapons to 
+	entities (which are not fleshed out in this example). A factory excels at 
+	creating and recycling objects in mass amounts. The flyweight pattern helps
+	conserve memory by managing shared data, seperating intrinsic from extrinsic
+	information, effectively reducing the memory footprint that	the application
+	puts out.
+
+-->
+
+<script>
+
+
+var Weapon = function (physType, physDmg, elemType, elemDmg) {
+	this.physType = physType || "sword";
+	this.physDmg = physDmg || 10;
+	this.elemType = elemType || "";
+	this.elemDmg = elemDmg || 0;
+}
+
+Weapon.prototype = {
+	getPhysType: function() {
+		return this.physType;
+	},
+	getPhysDmg: function() {
+		return this.physDmg;
+	},
+	getElemType: function() {
+		return this.elemType;
+	},
+	getElemDmg: function() {
+		return this.elemDmg;
+	}
+};
+
+var WeaponFactory = (function() {
+	
+	var createdWeapons = {};
+	
+	return {
+		createWeapon: function(physType, physDmg, elemType, elemDmg) {
+			if(createdWeapons[physType+','+physDmg+','+elemType+','+elemDmg]) {
+				return createdWeapons[physType+','+physDmg+','+elemType+','+elemDmg];
+			} else {
+				var weapon = new Weapon(physType, physDmg, elemType, elemDmg);
+				createdWeapons[physType+','+physDmg+','+elemType+','+elemDmg] = weapon;
+				return weapon;
+			}
+		}
+	};
+	
+})();
+
+
+var OwnershipManager = (function() {
+	
+	var ownershipDatabase = {};
+	
+	return {
+		addWeaponToEntity: function(entity, weapon) {
+			ownershipDatabase[entity] = {
+				owner: entity,
+				weapon: weapon
+			};
+		}
+	};
+	
+})();
+
+
+function giveEntityWeapon(entity, weaponData) {
+	var newWeapon = WeaponFactory.createWeapon(weaponData.type, weaponData.physDmg, weaponData.elem, weaponData.elemDmg);
+	OwnershipManager.addWeaponToEntity(entity, newWeapon);
+	if(entity == "player1") {
+		document.getElementById('player1Log').innerHTML += "Gave player new <b>"+newWeapon.elemType+" "+newWeapon.physType+"</b>: <br />";
+		document.getElementById('player1Log').innerHTML += "PhysDmg: <b>"+newWeapon.physDmg+"</b><br />ElementDmg: <b>"+newWeapon.elemDmg+"</b><br /><br />";
+	} else {
+		document.getElementById('player2Log').innerHTML += "Gave player new <b>"+newWeapon.elemType+" "+newWeapon.physType+"</b>: <br />";
+		document.getElementById('player2Log').innerHTML += "PhysDmg: <b>"+newWeapon.physDmg+"</b><br />ElementDmg: <b>"+newWeapon.elemDmg+"</b><br /><br />";
+	}
+}
+
+function getWeaponData() {
+	var wepData = {
+		type: document.getElementById('weaponType').value,
+		physDmg: document.getElementById('weaponDmg').value,
+		elem: document.getElementById('weaponElement').value,
+		elemDmg: document.getElementById('elementDmg').value
+	}
+	return wepData;
+}
+
+function give(player) {
+	var wepData = getWeaponData();
+	if(player == 'p1') {
+		giveEntityWeapon('player1', wepData);
+	} else {
+		giveEntityWeapon('player2', wepData);
+	}
+}
+
+</script>
+
+<style>
+
+#player1Log {
+	display:inline-block;
+	border:1px solid blue;
+	width:200px;
+	min-height:400px;
+	vertical-align:top;
+}
+
+#player2Log {
+	display:inline-block;
+	border:1px solid red;
+	width:200px;
+	min-height:400px;
+	vertical-align:top;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+Weapon type (sword, axe, etc.): <input type="text" id="weaponType" value="sword"><br />
+Weapon damage: <input type="text" id="weaponDmg" value="10"><br />
+Weapon element (fire, ice, etc.): <input type="text" id="weaponElement" value="fire"><br />
+Elemental damage : <input type="text" id="elementDmg"  value="2"><br />
+<button id="giveP1" onclick="give('p1')">Give to Player 1</button>
+<button id="giveP2" onclick="give('p2')">Give to Player 2</button>
+<br /><br />
+<div id="player1Log"><b>Player 1 Log</b><br /></div>
+<div id="player2Log"><b>Player 2 Log</b><br /></div>
+
+<!-- 
+
+Factory+Flyweight
+
+Decorator+Singleton
+
+Visitor+Builder? 
+
+-->
+
+</body>
+
+
+</html>
